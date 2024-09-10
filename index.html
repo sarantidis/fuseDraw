@@ -657,7 +657,7 @@ function calculateDrop() {
 
     const currentData = fuse.data.find(row => row[0] === mvReading);
     if (!currentData) {
-        resultElement.textContent = 'Data not found for the entered mV.';
+        resultElement.textContent = 'Data is OL for the entered mV.';
         resultElement.style.backgroundColor = '#f0f0f0'; // Reset background color
         resultElement.style.color = '#000000'; // Black text
         return;
@@ -675,7 +675,7 @@ function calculateDrop() {
     }
 
     // Update the result text with formatted current and voltage drop
-    resultElement.textContent = `The estimated current through the fuse is ${formattedCurrent} based on the ${mvReading} mV drop.`;
+    resultElement.textContent = `The estimated current through the fuse is ${formattedCurrent} based on the mV drop accross the fuse.`;
 
     // Apply color coding based on the mA range
     if (estimatedCurrent < 50) {

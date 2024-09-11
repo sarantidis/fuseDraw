@@ -66,8 +66,8 @@
             left: 0;
             bottom: 0;
             width: 100%;
-            background-color: white;
-            color: grey;
+            background-color: #007bff;
+            color: white;
             text-align: center;
         }
 
@@ -133,7 +133,7 @@
             <select id="amperage" class="colored-select"></select>
         </div>
 
-        <div id="colorLabel" class="fuse-color-label">Fuse Color: Grey</div>
+        <div id="colorLabel" class="fuse-color-label">Color: Grey</div>
         <label for="voltageDrop">Enter Voltmeter Reading (mV):</label>
         <input type="number" id="voltageDrop" step="0.1" min="0.1" max="10" placeholder="Enter mV">
         <div id="result">Waiting for input...</div>
@@ -649,7 +649,7 @@
 
             amperageElement.style.backgroundColor = fuse.colors[amperageIndex];
             amperageElement.style.color = fuse.textColor[amperageIndex];
-            colorLabelElement.textContent = `Color: ${fuse.colorNames[amperageIndex]}`;
+            colorLabelElement.textContent = `Fuse Color: ${fuse.colorNames[amperageIndex]}`;
         }
 
 function calculateDrop() {

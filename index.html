@@ -72,13 +72,12 @@
     padding: 5px; /* Reduced padding for shorter height */
     font-size: 0.7em; /* Optional: Adjust font size for a more compact footer */
 }
-        #topImage {
+#topImage {
     display: block;
     margin: 20px auto;
     width: 40%; /* Dynamically adjust width to 50% of original size */
     height: auto; /* Maintain aspect ratio based on the width */
 }
-
 .disclaimer {
     background-color: #f9f9f9;
     padding: 10px;
@@ -654,9 +653,51 @@
             colorLabelElement.textContent = `Fuse Color: ${fuse.colorNames[amperageIndex]}`;
         }
 
+function interpolateVoltageDrop(fuseType, mvReading, selectedAmperage) {
+    const fuse = fuseData[fuseType];
+    const amperageIndex = fuse.rating.indexOf(selectedAmperage);
+
+    // Get the voltage drop array from the fuse data
+    const voltageDropData = fuse.data.map(row => row[0]);
+
+    // Find the two closest points (one lower and one higher) for the voltage drop
+    let lowerPointIndex = -1;
+    let upperPointIndex = -1;
+
+    for (let i = 0; i < voltageDropData.length; i++) {
+        if (voltageDropData[i] <= mvReading) {
+            lowerPointIndex = i;
+        }
+        if (voltageDropData[i] > mvReading) {
+            upperPointIndex = i;
+            break;
+        }
+    }
+
+    // If the input mvReading is outside the bounds of the data, return the closest point
+    if (lowerPointIndex === -1) {
+        // mvReading is lower than the minimum value, use the first data point
+        return fuse.data[0][amperageIndex + 1];
+    } else if (upperPointIndex === -1) {
+        // mvReading is higher than the maximum value, use the last data point
+        return fuse.data[fuse.data.length - 1][amperageIndex + 1];
+    }
+
+    // Get the two closest voltage drop values and their corresponding current values
+    const mvLow = voltageDropData[lowerPointIndex];
+    const mvHigh = voltageDropData[upperPointIndex];
+    const currentLow = fuse.data[lowerPointIndex][amperageIndex + 1];
+    const currentHigh = fuse.data[upperPointIndex][amperageIndex + 1];
+
+    // Perform linear interpolation between the two points
+    const interpolatedCurrent = currentLow + (mvReading - mvLow) * (currentHigh - currentLow) / (mvHigh - mvLow);
+
+    return interpolatedCurrent;
+}
+
+
 function calculateDrop() {
     const fuseType = fuseTypeElement.value;
-    const fuse = fuseData[fuseType];
     let mvReading = parseFloat(voltageDropElement.value);
     const selectedAmperage = parseFloat(amperageElement.value);
 
@@ -670,20 +711,8 @@ function calculateDrop() {
         return;
     }
 
-    // Find the closest matching voltage drop in the data array
-    const closestData = fuse.data.reduce((prev, curr) => 
-        Math.abs(curr[0] - mvReading) < Math.abs(prev[0] - mvReading) ? curr : prev
-    );
-
-    if (!closestData) {
-        resultElement.textContent = 'Data not found for the entered mV.';
-        resultElement.style.backgroundColor = '#f0f0f0'; // Reset background color
-        resultElement.style.color = '#000000'; // Black text
-        return;
-    }
-
-    const amperageIndex = fuse.rating.indexOf(selectedAmperage);
-    const estimatedCurrent = closestData[amperageIndex + 1]; // The current value is next to the mV value
+    // Interpolate the current based on the voltage drop input
+    const estimatedCurrent = interpolateVoltageDrop(fuseType, mvReading, selectedAmperage);
 
     // Format the estimated current: show in mA if less than 1000mA, otherwise show in A
     let formattedCurrent;
@@ -694,8 +723,7 @@ function calculateDrop() {
     }
 
     // Update the result text with formatted current and rounded voltage drop
-    resultElement.textContent = `The estimated Standby (parasitic) draw on this circuit is
-${formattedCurrent}.`;
+    resultElement.textContent = `The estimated Standby (parasitic) draw on this circuit is ${formattedCurrent}.`;
 
     // Apply color coding based on the mA range
     if (estimatedCurrent < 50) {

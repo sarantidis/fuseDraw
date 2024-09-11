@@ -25,6 +25,7 @@
             margin: 10px 0;
             padding: 10px;
             font-size: 1.1em;
+	    box-sizing: border-box;
         }
 
         #result {
@@ -37,7 +38,8 @@
 
         .fuse-selection {
             display: flex;
-            align-items: center;
+		width:100%;            
+		align-items: center;
             gap: 15px;
         }
 
@@ -64,8 +66,8 @@
             left: 0;
             bottom: 0;
             width: 100%;
-            background-color: blue;
-            color: white;
+            background-color: white;
+            color: grey;
             text-align: center;
         }
 
@@ -73,8 +75,15 @@
             display: block;
             margin: 20px auto;
             max-width: 150px;
-            height: 100px;
+            height: 90px;
         }
+	    .disclaimer {
+    background-color: #f9f9f9;
+    padding: 10px;
+    border-left: 4px solid #007bff;
+    font-size: 0.9em;
+    color: #333;
+}
 
         @media (max-width: 768px) {
             label, select, input {
@@ -134,9 +143,12 @@
     <div>
         <img id="topImage" src="StandardTop.jpg" alt="Top Image">
     </div>
-
+<div class="disclaimer">
+    <p>Typically, an acceptable range is 20-50 mA with the vehicle off and systems in sleep mode. Anything above this may indicate a parasitic drain issue. For specific active circuits (e.g., sensors, control modules), the acceptable draw will depend on the design specifications of that particular circuit or component. Always refer to the OEM specifications for precise values.</p>
+</div>
+<br><br>
     <div class="footer">
-        <p>version 1.1 &copy 2023 sarantech,llc - dev: Peter Sarantidis</p>
+        <p>version 1.1 &copy 2023 sarantech,llc - Author: Peter Sarantidis</p>
     </div>
     <script>
         const fuseData = {
@@ -650,7 +662,7 @@ function calculateDrop() {
     mvReading = Math.round(mvReading * 10) / 10;
 
     if (isNaN(mvReading) || mvReading < 0.1 || mvReading > 10) {
-        resultElement.textContent = 'Set your meter to mV scale and enter a valid mV between 0.1 and 10.';
+        resultElement.textContent = 'Set the meter to mV scale and enter a valid mV between 0.1 and 10.';
         resultElement.style.backgroundColor = '#f0f0f0'; // Reset background color
         resultElement.style.color = '#000000'; // Black text
         return;
@@ -680,7 +692,8 @@ function calculateDrop() {
     }
 
     // Update the result text with formatted current and rounded voltage drop
-    resultElement.textContent = `The estimated current through the fuse is ${formattedCurrent} based on the ${mvReading} mV drop.`;
+    resultElement.textContent = `The estimated Standby (parasitic) draw on this circuit is
+${formattedCurrent}.`;
 
     // Apply color coding based on the mA range
     if (estimatedCurrent < 50) {
@@ -703,4 +716,3 @@ function calculateDrop() {
     </script>
 </body>
 </html>
-
